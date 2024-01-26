@@ -392,8 +392,8 @@ class LatentDiffusion(DDPM):
         else:
             device = "cpu"
 
-        if device == "mps":
-            cond_stage_config["params"] = { device: "cpu" }
+        if device == "mps" and cond_stage_config["target"] == "lvdm.modules.encoders.condition.FrozenOpenCLIPEmbedder":
+            cond_stage_config["params"] = { device: "mps" }
         self.instantiate_cond_stage(cond_stage_config)
         self.first_stage_config = first_stage_config
         self.cond_stage_config = cond_stage_config        
