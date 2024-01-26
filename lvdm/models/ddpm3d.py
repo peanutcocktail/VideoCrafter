@@ -392,7 +392,8 @@ class LatentDiffusion(DDPM):
         else:
             device = "cpu"
 
-        cond_stage_config["params"] = { device: device }
+        if device == "mps":
+            cond_stage_config["params"] = { device: "cpu" }
         self.instantiate_cond_stage(cond_stage_config)
         self.first_stage_config = first_stage_config
         self.cond_stage_config = cond_stage_config        
