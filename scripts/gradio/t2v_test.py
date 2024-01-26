@@ -27,16 +27,26 @@ class Text2Video():
             model_list.append(model)
         self.model_list = model_list
         self.save_fps = 8
+        if torch.cuda.is_available():
+            self.device = "cuda"
+        elif torch.backends.mps.is_available():
+            self.device = "mps"
+        else:
+            self.device = "cpu"
 
     def get_prompt(self, prompt, steps=50, cfg_scale=12.0, eta=1.0, fps=16):
-        torch.cuda.empty_cache()
+        if self.device == "cuda":
+            torch.cuda.empty_cache()
         print('start:', prompt, time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
         start = time.time()
         gpu_id=0
         if steps > 60:
             steps = 60 
         model = self.model_list[gpu_id]
-        model = model.cuda()
+        if self.device == "cuda":
+            model = model.cuda()
+        elif self.device == "mps":
+            model = model.to("mps")
         batch_size=1
         channels = model.model.diffusion_model.in_channels
         frames = model.temporal_length
