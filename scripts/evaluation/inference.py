@@ -46,7 +46,18 @@ def run_inference(args, gpu_num, gpu_no, **kwargs):
     #data_config = config.pop("data", OmegaConf.create())
     model_config = config.pop("model", OmegaConf.create())
     model = instantiate_from_config(model_config)
-    model = model.cuda(gpu_no)
+
+    if torch.cuda.is_available():
+        device = "cuda"
+    elif torch.backends.mps.is_available():
+        device = "mps"
+    else:
+        device = "cpu"
+
+    if device == "cuda":
+        model = model.cuda(gpu_no)
+    elif device == "mps":
+        model = mode.to("mps")
     assert os.path.exists(args.ckpt_path), f"Error: checkpoint [{args.ckpt_path}] Not Found!"
     model = load_model_checkpoint(model, args.ckpt_path)
     model.eval()

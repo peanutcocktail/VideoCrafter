@@ -384,6 +384,15 @@ class LatentDiffusion(DDPM):
         else:
             self.register_buffer('scale_factor', torch.tensor(scale_factor))
         self.instantiate_first_stage(first_stage_config)
+
+        if torch.cuda.is_available():
+            device = "cuda"
+        elif torch.backends.mps.is_available():
+            device = "mps"
+        else:
+            device = "cpu"
+
+        cond_stage_config["params"] = { device: device }
         self.instantiate_cond_stage(cond_stage_config)
         self.first_stage_config = first_stage_config
         self.cond_stage_config = cond_stage_config        
